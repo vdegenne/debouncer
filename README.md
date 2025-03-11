@@ -1,15 +1,16 @@
 # @vdegenne/debouncer
 
-
 ```js
 import {Debouncer} from '@vdegenne/debouncer';
 
-function boom() { /* */ }
+function boom() {
+	/* */
+}
 
-const d = new Debouncer(boom, 1000)
+const d = new Debouncer(boom, 1000);
 
-d.call()
-
+d.call();
+d.call(); // boom
 
 // d.cancel()
 ```
