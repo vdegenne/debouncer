@@ -1,0 +1,20 @@
+{
+	"name": "@vdegenne/debouncer",
+	"version": "1.0.0",
+	"type": "module",
+	"devDependencies": {
+		"typescript": "^5.8.2"
+	},
+	"scripts": {
+		"build": "tsc --pretty"
+	},
+	"files": [
+		"./lib"
+	],
+	"exports": {
+		".": {
+			"default": "./lib/index.js",
+			"types": "./lib/index.d.ts"
+		}
+	}
+}
