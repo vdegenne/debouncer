@@ -14,3 +14,5 @@ d.call(); // boom
 
 // d.cancel()
 ```
+
+If the debouncer function needs parameters, you can pass them through the `call` method.

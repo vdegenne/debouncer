@@ -2,14 +2,14 @@ export class Debouncer {
 	#timeout: number | undefined;
 
 	constructor(
-		protected callback: () => void,
+		protected callback: (...args: any[]) => void,
 		protected timeoutMs: number,
 	) {}
 
-	call() {
+	call(...args: any[]) {
 		this.cancel();
 		this.#timeout = setTimeout(() => {
-			this.callback();
+			this.callback(...args);
 			this.#timeout = undefined;
 		}, this.timeoutMs);
 	}

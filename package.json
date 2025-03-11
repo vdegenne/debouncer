@@ -1,6 +1,6 @@
 {
 	"name": "@vdegenne/debouncer",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"type": "module",
 	"devDependencies": {
 		"typescript": "^5.8.2"
