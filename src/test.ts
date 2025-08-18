@@ -14,4 +14,4 @@ d.call('yo');
 d.call('yo');
 d.call('yo');
 
-// debounce(t.c, 100);
+// debounce(t.c)('yo')

@@ -27,12 +27,12 @@ const cache = new WeakMap<Function, Debouncer>();
 export function debounce<Args extends any[] = any[]>(
 	fn: (...args: Args) => void,
 	delay = 100,
-	...args: Args
-) {
+): (...args: Args) => void {
 	let debouncer = cache.get(fn) as Debouncer<Args> | undefined;
 	if (!debouncer) {
 		debouncer = new Debouncer<Args>(fn, delay);
 		cache.set(fn, debouncer);
 	}
-	debouncer.call(...args);
+
+	return (...args: Args) => debouncer!.call(...args);
 }

@@ -1,18 +1,30 @@
 # @vdegenne/debouncer
 
-```js
+## Debouncer main utility class
+
+```ts
 import {Debouncer} from '@vdegenne/debouncer';
 
-function boom() {
+function boom(v: string) {
 	/* */
 }
 
 const d = new Debouncer(boom, 1000);
 
-d.call();
-d.call(); // boom
+d.call('foo');
+d.call('bar'); // boom
 
 // d.cancel()
 ```
 
-If the debouncer function needs parameters, you can pass them through the `call` method.
+## debounce utility function
+
+```ts
+import {debounce} from '@vdegenne/debouncer';
+
+function boom(v: string) {
+	/* */
+}
+
+debounce(boom)('foo');
+```
