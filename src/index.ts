@@ -1,12 +1,12 @@
-export class Debouncer {
+export class Debouncer<Args extends any[] = any[]> {
 	#timeout: number | undefined;
 
 	constructor(
-		protected callback: (...args: any[]) => void,
-		protected timeoutMs: number,
+		protected callback: (...args: Args) => void,
+		protected timeoutMs = 100,
 	) {}
 
-	call(...args: any[]) {
+	call(...args: Args) {
 		this.cancel();
 		this.#timeout = setTimeout(() => {
 			this.callback(...args);
@@ -22,4 +22,17 @@ export class Debouncer {
 	}
 }
 
-export default Debouncer;
+const cache = new WeakMap<Function, Debouncer>();
+
+export function debounce<Args extends any[] = any[]>(
+	fn: (...args: Args) => void,
+	delay = 100,
+	...args: Args
+) {
+	let debouncer = cache.get(fn) as Debouncer<Args> | undefined;
+	if (!debouncer) {
+		debouncer = new Debouncer<Args>(fn, delay);
+		cache.set(fn, debouncer);
+	}
+	debouncer.call(...args);
+}
