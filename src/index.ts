@@ -1,16 +1,16 @@
-export class Debouncer<Args extends any[] = any[]> {
+export class Debouncer<Args extends any[] = any[], R = any> {
 	#timeout: number | undefined;
-	#resolve: ((value?: any) => void) | undefined;
+	#resolve: ((value: R | PromiseLike<R>) => void) | undefined;
 
 	constructor(
-		protected callback: (...args: Args) => void | Promise<any>,
+		protected callback: (...args: Args) => R | Promise<R>,
 		protected timeoutMs = 100,
 	) {}
 
-	call(...args: Args): Promise<any> {
+	call(...args: Args): Promise<R> {
 		this.cancel();
 
-		return new Promise((resolve) => {
+		return new Promise<R>((resolve) => {
 			this.#resolve = resolve;
 
 			this.#timeout = setTimeout(async () => {
@@ -30,24 +30,23 @@ export class Debouncer<Args extends any[] = any[]> {
 			clearTimeout(this.#timeout);
 			this.#timeout = undefined;
 
-			// Reject or resolve the pending promise if needed
 			if (this.#resolve) {
-				this.#resolve(undefined);
+				this.#resolve(undefined as unknown as R);
 				this.#resolve = undefined;
 			}
 		}
 	}
 }
 
-const cache = new WeakMap<Function, Debouncer>();
+const cache = new WeakMap<Function, Debouncer<any, any>>();
 
-export function debounce<Args extends any[] = any[]>(
-	fn: (...args: Args) => void | Promise<any>,
+export function debounce<Args extends any[] = any[], R = any>(
+	fn: (...args: Args) => R | Promise<R>,
 	delay = 100,
-): (...args: Args) => Promise<any> {
-	let debouncer = cache.get(fn) as Debouncer<Args> | undefined;
+): (...args: Args) => Promise<R> {
+	let debouncer = cache.get(fn) as Debouncer<Args, R> | undefined;
 	if (!debouncer) {
-		debouncer = new Debouncer<Args>(fn, delay);
+		debouncer = new Debouncer<Args, R>(fn, delay);
 		cache.set(fn, debouncer);
 	}
 
