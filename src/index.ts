@@ -1,4 +1,4 @@
-export class Debouncer<Args extends any[] = any[], R = any> {
+export class Debouncer<R = void, Args extends any[] = any[]> {
 	#timeout: number | undefined;
 	#resolve: ((value: R | PromiseLike<R>) => void) | undefined;
 
@@ -38,15 +38,15 @@ export class Debouncer<Args extends any[] = any[], R = any> {
 	}
 }
 
-const cache = new WeakMap<Function, Debouncer<any, any>>();
+const cache = new WeakMap<Function, Debouncer<any, []>>();
 
-export function debounce<Args extends any[] = any[], R = any>(
+export function debounce<R, Args extends []>(
 	fn: (...args: Args) => R | Promise<R>,
 	delay = 100,
 ): (...args: Args) => Promise<R> {
-	let debouncer = cache.get(fn) as Debouncer<Args, R> | undefined;
+	let debouncer = cache.get(fn) as Debouncer<R, Args> | undefined;
 	if (!debouncer) {
-		debouncer = new Debouncer<Args, R>(fn, delay);
+		debouncer = new Debouncer<R, Args>(fn, delay);
 		cache.set(fn, debouncer);
 	}
 
