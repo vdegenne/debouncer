@@ -1,6 +1,12 @@
+// class DebounceCancelledError extends Error {
+// 	constructor() {
+// 		super('Debounced call cancelled');
+// 	}
+// }
+
 export class Debouncer<R = any, Args extends any[] = any[]> {
-	#timeout: number | undefined;
-	#resolve: ((value: R | PromiseLike<R>) => void) | undefined;
+	#timeout: ReturnType<typeof setTimeout> | undefined;
+	#reject: ((reason?: any) => void) | undefined;
 
 	constructor(
 		protected callback: (...args: Args) => R | Promise<R>,
@@ -10,16 +16,16 @@ export class Debouncer<R = any, Args extends any[] = any[]> {
 	call(...args: Args): Promise<R> {
 		this.cancel();
 
-		return new Promise<R>((resolve) => {
-			this.#resolve = resolve;
+		return new Promise<R>((resolve, reject) => {
+			this.#reject = reject;
 
 			this.#timeout = setTimeout(async () => {
 				try {
-					const result = await this.callback(...args);
-					resolve(result);
+					resolve(await this.callback(...args));
+				} catch (error) {
+					reject(error);
 				} finally {
-					this.#timeout = undefined;
-					this.#resolve = undefined;
+					this.#clear();
 				}
 			}, this.timeoutMs);
 		});
@@ -28,13 +34,14 @@ export class Debouncer<R = any, Args extends any[] = any[]> {
 	cancel() {
 		if (this.#timeout !== undefined) {
 			clearTimeout(this.#timeout);
-			this.#timeout = undefined;
-
-			if (this.#resolve) {
-				this.#resolve(undefined as unknown as R);
-				this.#resolve = undefined;
-			}
+			this.#reject?.(new Error('Debounced call cancelled'));
+			this.#clear();
 		}
+	}
+
+	#clear() {
+		this.#timeout = undefined;
+		this.#reject = undefined;
 	}
 }
 
