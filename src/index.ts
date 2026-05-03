@@ -1,4 +1,4 @@
-export class Debouncer<R = void, Args extends any[] = any[]> {
+export class Debouncer<R = any, Args extends any[] = any[]> {
 	#timeout: number | undefined;
 	#resolve: ((value: R | PromiseLike<R>) => void) | undefined;
 
