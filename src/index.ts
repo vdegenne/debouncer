@@ -11,6 +11,21 @@ export class Debouncer<R = any, Args extends any[] = any[]> {
 	constructor(
 		protected callback: (...args: Args) => R | Promise<R>,
 		protected timeoutMs = 100,
+		protected options = {
+			/**
+			 * Use `true` when you are waiting the calls in most case, e.g.
+			 *
+			 * ```
+			 * try {
+			 *   await myDebouncer.call()
+			 * } catch {
+			 *   // canceled, do something
+			 * }
+			 * ```
+			 * @default false
+			 */
+			throwOnCancel: false,
+		},
 	) {}
 
 	call(...args: Args): Promise<R> {
@@ -34,7 +49,11 @@ export class Debouncer<R = any, Args extends any[] = any[]> {
 	cancel() {
 		if (this.#timeout !== undefined) {
 			clearTimeout(this.#timeout);
-			this.#reject?.(new Error('Debounced call cancelled'));
+
+			if (this.options.throwOnCancel) {
+				this.#reject?.(new Error('Debounced call cancelled'));
+			}
+
 			this.#clear();
 		}
 	}
