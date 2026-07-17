@@ -1,9 +1,9 @@
 {
 	"name": "@vdegenne/debouncer",
-	"version": "1.0.12",
+	"version": "1.0.13",
 	"type": "module",
 	"devDependencies": {
-		"typescript": "^5.9.2"
+		"typescript": "^7.0.2"
 	},
 	"scripts": {
 		"build": "tsc"

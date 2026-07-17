@@ -1,9 +1,3 @@
-// class DebounceCancelledError extends Error {
-// 	constructor() {
-// 		super('Debounced call cancelled');
-// 	}
-// }
-
 export class Debouncer<R = any, Args extends any[] = any[]> {
 	#timeout: ReturnType<typeof setTimeout> | undefined;
 	#reject: ((reason?: any) => void) | undefined;
@@ -12,23 +6,15 @@ export class Debouncer<R = any, Args extends any[] = any[]> {
 		protected callback: (...args: Args) => R | Promise<R>,
 		protected timeoutMs = 100,
 		protected options = {
-			/**
-			 * Use `true` when you are waiting the calls in most case, e.g.
-			 *
-			 * ```
-			 * try {
-			 *   await myDebouncer.call()
-			 * } catch {
-			 *   // canceled, do something
-			 * }
-			 * ```
-			 * @default false
-			 */
-			throwOnCancel: false,
+			throwOnCancel: true,
 		},
 	) {}
 
-	call(...args: Args): Promise<R> {
+	/**
+	 * Schedule a debounced execution.
+	 * Previous pending calls are cancelled.
+	 */
+	debounce(...args: Args): Promise<R> {
 		this.cancel();
 
 		return new Promise<R>((resolve, reject) => {
@@ -44,6 +30,16 @@ export class Debouncer<R = any, Args extends any[] = any[]> {
 				}
 			}, this.timeoutMs);
 		});
+	}
+
+	/**
+	 * Execute immediately.
+	 * Cancels any pending debounced execution first.
+	 */
+	async call(...args: Args): Promise<R> {
+		this.cancel();
+
+		return await this.callback(...args);
 	}
 
 	cancel() {
@@ -64,17 +60,18 @@ export class Debouncer<R = any, Args extends any[] = any[]> {
 	}
 }
 
-const cache = new WeakMap<Function, Debouncer<any, []>>();
+const cache = new WeakMap<Function, Debouncer<any, any[]>>();
 
-export function debounce<R, Args extends []>(
+export function debounce<R, Args extends any[]>(
 	fn: (...args: Args) => R | Promise<R>,
 	delay = 100,
 ): (...args: Args) => Promise<R> {
 	let debouncer = cache.get(fn) as Debouncer<R, Args> | undefined;
+
 	if (!debouncer) {
 		debouncer = new Debouncer<R, Args>(fn, delay);
 		cache.set(fn, debouncer);
 	}
 
-	return (...args: Args) => debouncer!.call(...args);
+	return (...args: Args) => debouncer!.debounce(...args);
 }
