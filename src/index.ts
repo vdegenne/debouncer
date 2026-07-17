@@ -62,10 +62,15 @@ export class Debouncer<R = any, Args extends any[] = any[]> {
 
 const cache = new WeakMap<Function, Debouncer<any, any[]>>();
 
+type DebouncedFunction<R, Args extends any[]> = {
+	(...args: Args): Promise<R>;
+	debouncer: Debouncer<R, Args>;
+};
+
 export function debounce<R, Args extends any[]>(
 	fn: (...args: Args) => R | Promise<R>,
 	delay = 100,
-): (...args: Args) => Promise<R> {
+): DebouncedFunction<R, Args> {
 	let debouncer = cache.get(fn) as Debouncer<R, Args> | undefined;
 
 	if (!debouncer) {
@@ -73,5 +78,9 @@ export function debounce<R, Args extends any[]>(
 		cache.set(fn, debouncer);
 	}
 
-	return (...args: Args) => debouncer!.debounce(...args);
+	const wrapped = (...args: Args) => debouncer!.debounce(...args);
+
+	wrapped.debouncer = debouncer;
+
+	return wrapped;
 }
