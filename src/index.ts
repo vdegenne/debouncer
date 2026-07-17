@@ -64,7 +64,9 @@ const cache = new WeakMap<Function, Debouncer<any, any[]>>();
 
 type DebouncedFunction<R, Args extends any[]> = {
 	(...args: Args): Promise<R>;
-	debouncer: Debouncer<R, Args>;
+	debounce(...args: Args): Promise<R>;
+	call(...args: Args): Promise<R>;
+	cancel(): void;
 };
 
 export function debounce<R, Args extends any[]>(
@@ -80,7 +82,9 @@ export function debounce<R, Args extends any[]>(
 
 	const wrapped = (...args: Args) => debouncer!.debounce(...args);
 
-	wrapped.debouncer = debouncer;
+	wrapped.debounce = (...args: Args) => debouncer!.debounce(...args);
+	wrapped.call = (...args: Args) => debouncer!.call(...args);
+	wrapped.cancel = () => debouncer!.cancel();
 
 	return wrapped;
 }
