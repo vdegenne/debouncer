@@ -10,7 +10,11 @@ export class Debouncer<R = any, Args extends any[] = any[]> {
 		},
 	) {}
 
-	#debounce(args: Args, timeoutMs?: number) {
+	/**
+	 * Schedule a debounced execution.
+	 * Previous pending calls are cancelled.
+	 */
+	debounce(...args: Args): Promise<R> {
 		this.cancel();
 
 		return new Promise<R>((resolve, reject) => {
@@ -24,20 +28,8 @@ export class Debouncer<R = any, Args extends any[] = any[]> {
 				} finally {
 					this.#clear();
 				}
-			}, timeoutMs ?? this.timeoutMs);
+			}, this.timeoutMs);
 		});
-	}
-
-	/**
-	 * Schedule a debounced execution.
-	 * Previous pending calls are cancelled.
-	 */
-	debounce(...args: Args): Promise<R> {
-		return this.#debounce(args, this.timeoutMs);
-	}
-
-	withTimeoutMs(timeoutMs: number) {
-		return debounce((...args: Args) => this.#debounce(args, timeoutMs));
 	}
 
 	/**
